@@ -91,7 +91,13 @@ while IFS= read -r url || [[ -n "$url" ]]; do
     base_filename="${base_filename}.csv"
   fi
   
+  if [ "$CI" = "true" ]; then
+    chrome_flags="--headless --no-sandbox --disable-gpu"
+  else
+    chrome_flags=""
+  fi
+
   # Exécution du scan Lighthouse avec les formats de sortie et catégories sélectionnés par l'utilisateur
-  lighthouse "$url" --output "$formats" --only-categories "$categories" --output-path "$base_filename"
+  lighthouse "$url" --output "$formats" --only-categories "$categories" --output-path "$base_filename" --chrome-flags="$chrome_flags"
   
 done < "$file"
