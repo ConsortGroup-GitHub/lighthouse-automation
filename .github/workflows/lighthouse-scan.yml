@@ -29,7 +29,7 @@ jobs:
         run: npm install -g lighthouse
 
       - name: Run Lighthouse scans
-        run: ./lighthouse-scan-command-lines.sh
+        run: ./lighthouse-scan-command-lines.sh json,html accessibility
 
       - name: Upload Lighthouse Reports
         uses: actions/upload-artifact@v4
