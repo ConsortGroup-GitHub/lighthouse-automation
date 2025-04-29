@@ -1,17 +1,17 @@
 name: Lighthouse Scan Automation
 
 on:
-  workflow_dispatch:  # Permet d'exécuter manuellement le workflow depuis l'interface GitHub
-  push:               # Ou déclenche à chaque push sur la branche principale
+  workflow_dispatch: # Déclencheur manuel
+  push:              # Déclenche aussi à chaque push sur main
     branches:
       - main
-  pull_request:       # Ou lorsqu'une PR est ouverte ou mise à jour sur main
+  pull_request:      # Et aussi sur PR vers main
     branches:
       - main
 
 jobs:
   lighthouse-scan:
-    runs-on: ubuntu-latest  # Exécuter sur une VM Ubuntu GitHub
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -30,3 +30,28 @@ jobs:
 
       - name: Run Lighthouse scans
         run: ./lighthouse-scan-command-lines.sh
+
+      - name: Upload Lighthouse Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: |
+            Reports/*.html
+            Reports/*.json
+            Reports/*.csv
+
+      - name: Display Lighthouse Scores in logs
+        run: |
+          echo "Extraction des scores Lighthouse :"
+          for file in Reports/*.json; do
+            echo "----"
+            echo "Fichier : $file"
+            performance=$(jq '.categories.performance.score' "$file")
+            accessibility=$(jq '.categories.accessibility.score' "$file")
+            bestPractices=$(jq '.categories["best-practices"].score' "$file")
+            seo=$(jq '.categories.seo.score' "$file")
+            echo "Performance Score    : $performance"
+            echo "Accessibility Score  : $accessibility"
+            echo "Best Practices Score : $bestPractices"
+            echo "SEO Score            : $seo"
+          done
