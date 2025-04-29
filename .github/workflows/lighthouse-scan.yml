@@ -1,0 +1,32 @@
+name: Lighthouse Scan Automation
+
+on:
+  workflow_dispatch:  # Permet d'exécuter manuellement le workflow depuis l'interface GitHub
+  push:               # Ou déclenche à chaque push sur la branche principale
+    branches:
+      - main
+  pull_request:       # Ou lorsqu'une PR est ouverte ou mise à jour sur main
+    branches:
+      - main
+
+jobs:
+  lighthouse-scan:
+    runs-on: ubuntu-latest  # Exécuter sur une VM Ubuntu GitHub
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set script permissions
+        run: chmod +x ./lighthouse-scan-command-lines.sh
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Lighthouse globally
+        run: npm install -g lighthouse
+
+      - name: Run Lighthouse scans
+        run: ./lighthouse-scan-command-lines.sh
