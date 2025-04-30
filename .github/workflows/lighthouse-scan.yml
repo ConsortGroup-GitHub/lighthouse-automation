@@ -12,6 +12,8 @@ on:
 jobs:
   lighthouse-scan:
     runs-on: ubuntu-latest
+    env:
+      TZ: Europe/Paris  # ➕ Active la timezone Europe/Paris pour tout le job
 
     steps:
       - name: Checkout repository
@@ -63,7 +65,7 @@ jobs:
 
       - name: Append results to CSV
         run: |
-          now=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          now=$(date +"%Y-%m-%dT%H:%M:%S+02:00")
           for file in Reports/*.json; do
             url=$(jq -r '.finalUrl' "$file")
             perf=$(jq '.categories.performance.score' "$file")
