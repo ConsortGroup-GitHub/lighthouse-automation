@@ -30,7 +30,7 @@
 
   <script>
     async function fetchDataAndDraw() {
-      const response = await fetch('../lighthouse-history.csv');
+      const response = await fetch('./lighthouse-history.csv');
       const csv = await response.text();
       const parsed = Papa.parse(csv, { header: true });
 
