@@ -65,7 +65,7 @@ jobs:
 
       - name: Append results to CSV
         run: |
-          now=$(date +"%Y-%m-%dT%H:%M:%S+02:00")
+          now=$(date +"%Y-%m-%dT%H:%M:%S")
           for file in Reports/*.json; do
             url=$(jq -r '.finalUrl' "$file")
             perf=$(jq '.categories.performance.score' "$file")
