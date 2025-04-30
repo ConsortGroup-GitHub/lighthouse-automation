@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Historique des scores Lighthouse</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2em;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+    }
+    canvas {
+      max-width: 1000px;
+      margin: auto;
+      background: white;
+      padding: 1em;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 Évolution des scores Lighthouse</h1>
+  <canvas id="lighthouseChart"></canvas>
+
+  <script>
+    async function fetchDataAndDraw() {
+      const response = await fetch('../lighthouse-history.csv');
+      const csv = await response.text();
+      const parsed = Papa.parse(csv, { header: true });
+
+      const dates = [];
+      const perf = [], seo = [], acc = [], best = [];
+
+      parsed.data.forEach(row => {
+        if (!row.date) return;
+        dates.push(row.date);
+        perf.push(parseFloat(row.performance) * 100);
+        seo.push(parseFloat(row.seo) * 100);
+        acc.push(parseFloat(row.accessibility) * 100);
+        best.push(parseFloat(row["best-practices"]) * 100);
+      });
+
+      const ctx = document.getElementById('lighthouseChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dates,
+          datasets: [
+            {
+              label: 'Performance',
+              data: perf,
+              borderColor: 'rgba(75,192,192,1)',
+              fill: false
+            },
+            {
+              label: 'SEO',
+              data: seo,
+              borderColor: 'rgba(255,205,86,1)',
+              fill: false
+            },
+            {
+              label: 'Accessibilité',
+              data: acc,
+              borderColor: 'rgba(153,102,255,1)',
+              fill: false
+            },
+            {
+              label: 'Best Practices',
+              data: best,
+              borderColor: 'rgba(255,99,132,1)',
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' },
+            title: {
+              display: true,
+              text: 'Suivi des scores Lighthouse (%)'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100
+            }
+          }
+        }
+      });
+    }
+
+    fetchDataAndDraw();
+  </script>
+</body>
+</html>
