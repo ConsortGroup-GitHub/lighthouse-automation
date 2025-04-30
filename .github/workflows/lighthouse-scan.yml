@@ -60,3 +60,26 @@ jobs:
             echo "Best Practices Score : $bestPractices"
             echo "SEO Score            : $seo"
           done
+
+      - name: Append results to CSV
+        run: |
+          now=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          for file in Reports/*.json; do
+            url=$(jq -r '.finalUrl' "$file")
+            perf=$(jq '.categories.performance.score' "$file")
+            acc=$(jq '.categories.accessibility.score' "$file")
+            best=$(jq '.categories["best-practices"].score' "$file")
+            seo=$(jq '.categories.seo.score' "$file")
+            echo "$now,$url,$perf,$acc,$best,$seo" >> lighthouse-history.csv
+          done
+
+      - name: Commit and push history file
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add lighthouse-history.csv
+          git commit -m "📊 Update Lighthouse score history [skip ci]" || echo "No changes to commit"
+          git push
+
+      - name: Confirm push
+        run: echo "✅ CSV historisé et poussé avec succès !"
