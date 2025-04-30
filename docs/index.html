@@ -2,31 +2,41 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Historique des scores Lighthouse</title>
+  <title>Évolution des scores Lighthouse</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
+      margin: 0;
       padding: 2em;
-      background-color: #f4f4f4;
+      background-color: #f8f9fa;
     }
     h1 {
       text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 1em;
+    }
+    .chart-container {
+      width: 100%;
+      max-width: 1600px;
+      margin: auto;
     }
     canvas {
-      max-width: 1000px;
-      margin: auto;
+      width: 100% !important;
+      height: auto !important;
       background: white;
       padding: 1em;
-      border-radius: 8px;
-      box-shadow: 0 0 10px #ccc;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }
   </style>
 </head>
 <body>
   <h1>📊 Évolution des scores Lighthouse</h1>
-  <canvas id="lighthouseChart"></canvas>
+  <div class="chart-container">
+    <canvas id="lighthouseChart"></canvas>
+  </div>
 
   <script>
     async function fetchDataAndDraw() {
@@ -55,42 +65,76 @@
             {
               label: 'Performance',
               data: perf,
-              borderColor: 'rgba(75,192,192,1)',
-              fill: false
+              borderColor: '#00bcd4',
+              fill: false,
+              tension: 0.3
             },
             {
               label: 'SEO',
               data: seo,
-              borderColor: 'rgba(255,205,86,1)',
-              fill: false
+              borderColor: '#ffca28',
+              fill: false,
+              tension: 0.3
             },
             {
               label: 'Accessibilité',
               data: acc,
-              borderColor: 'rgba(153,102,255,1)',
-              fill: false
+              borderColor: '#7e57c2',
+              fill: false,
+              tension: 0.3
             },
             {
               label: 'Best Practices',
               data: best,
-              borderColor: 'rgba(255,99,132,1)',
-              fill: false
+              borderColor: '#ef5350',
+              fill: false,
+              tension: 0.3
             }
           ]
         },
         options: {
           responsive: true,
           plugins: {
-            legend: { position: 'top' },
+            legend: {
+              position: 'top',
+              labels: {
+                font: {
+                  size: 14
+                }
+              }
+            },
             title: {
               display: true,
-              text: 'Suivi des scores Lighthouse (%)'
+              text: 'Suivi des scores Lighthouse (%)',
+              font: {
+                size: 20
+              }
             }
           },
           scales: {
             y: {
               beginAtZero: true,
-              max: 100
+              max: 100,
+              title: {
+                display: true,
+                text: 'Score (%)',
+                font: {
+                  size: 16
+                }
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Date',
+                font: {
+                  size: 16
+                }
+              },
+              ticks: {
+                autoSkip: true,
+                maxTicksLimit: 12
+              }
             }
           }
         }
