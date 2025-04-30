@@ -72,14 +72,14 @@ jobs:
             acc=$(jq '.categories.accessibility.score' "$file")
             best=$(jq '.categories["best-practices"].score' "$file")
             seo=$(jq '.categories.seo.score' "$file")
-            echo "$now,$url,$perf,$acc,$best,$seo" >> lighthouse-history.csv
+            echo "$now,$url,$perf,$acc,$best,$seo" >> docs/lighthouse-history.csv
           done
 
       - name: Commit and push history file
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add lighthouse-history.csv
+          git add docs/lighthouse-history.csv
           git commit -m "📊 Update Lighthouse score history [skip ci]" || echo "No changes to commit"
           git push
 
