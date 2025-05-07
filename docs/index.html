@@ -17,10 +17,24 @@
       font-size: 2.5em;
       margin-bottom: 1em;
     }
-    .chart-container {
+    .container {
       width: 100%;
       max-width: 1600px;
       margin: auto;
+    }
+    .chart-container {
+      width: 100%;
+      margin-top: 2em;
+    }
+    select {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px;
+      margin: 0 auto;
+      display: block;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 8px;
     }
     canvas {
       width: 100% !important;
@@ -34,114 +48,84 @@
 </head>
 <body>
   <h1>📊 Évolution des scores Lighthouse</h1>
-  <div class="chart-container">
-    <canvas id="lighthouseChart"></canvas>
+  <div class="container">
+    <select id="urlSelector" onchange="updateChart()">
+      <option value="">Sélectionner une URL</option>
+    </select>
+    <div class="chart-container">
+      <canvas id="lighthouseChart"></canvas>
+    </div>
   </div>
 
   <script>
-    async function fetchDataAndDraw() {
+    async function fetchData() {
       const response = await fetch('./lighthouse-history.csv');
       const csv = await response.text();
-      const parsed = Papa.parse(csv, { header: true });
+      return Papa.parse(csv, { header: true }).data;
+    }
 
-      const dates = [];
-      const perf = [], seo = [], acc = [], best = [];
-
-      parsed.data.forEach(row => {
-        if (!row.date) return;
-        dates.push(row.date);
-        perf.push(parseFloat(row.performance) * 100);
-        seo.push(parseFloat(row.seo) * 100);
-        acc.push(parseFloat(row.accessibility) * 100);
-        best.push(parseFloat(row["best-practices"]) * 100);
+    async function populateURLSelector(data) {
+      const urlSelector = document.getElementById('urlSelector');
+      const urls = [...new Set(data.map(row => row.url))];
+      urls.forEach(url => {
+        const option = document.createElement('option');
+        option.value = url;
+        option.textContent = url;
+        urlSelector.appendChild(option);
       });
+    }
+
+    async function updateChart() {
+      const selectedURL = document.getElementById('urlSelector').value;
+      const data = await fetchData();
+      const filteredData = data.filter(row => row.url === selectedURL);
+
+      const dates = filteredData.map(row => row.date);
+      const perf = filteredData.map(row => parseFloat(row.performance) * 100);
+      const seo = filteredData.map(row => parseFloat(row.seo) * 100);
+      const acc = filteredData.map(row => parseFloat(row.accessibility) * 100);
+      const best = filteredData.map(row => parseFloat(row['best-practices']) * 100);
+
+      lighthouseChart.data.labels = dates;
+      lighthouseChart.data.datasets[0].data = perf;
+      lighthouseChart.data.datasets[1].data = seo;
+      lighthouseChart.data.datasets[2].data = acc;
+      lighthouseChart.data.datasets[3].data = best;
+      lighthouseChart.update();
+    }
+
+    let lighthouseChart;
+
+    async function initializeChart() {
+      const data = await fetchData();
+      await populateURLSelector(data);
 
       const ctx = document.getElementById('lighthouseChart').getContext('2d');
-      new Chart(ctx, {
+      lighthouseChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: dates,
+          labels: [],
           datasets: [
-            {
-              label: 'Performance',
-              data: perf,
-              borderColor: '#00bcd4',
-              fill: false,
-              tension: 0.3
-            },
-            {
-              label: 'SEO',
-              data: seo,
-              borderColor: '#ffca28',
-              fill: false,
-              tension: 0.3
-            },
-            {
-              label: 'Accessibilité',
-              data: acc,
-              borderColor: '#7e57c2',
-              fill: false,
-              tension: 0.3
-            },
-            {
-              label: 'Best Practices',
-              data: best,
-              borderColor: '#ef5350',
-              fill: false,
-              tension: 0.3
-            }
+            { label: 'Performance', data: [], borderColor: '#00bcd4', fill: false },
+            { label: 'SEO', data: [], borderColor: '#ffca28', fill: false },
+            { label: 'Accessibilité', data: [], borderColor: '#7e57c2', fill: false },
+            { label: 'Best Practices', data: [], borderColor: '#ef5350', fill: false }
           ]
         },
         options: {
           responsive: true,
           plugins: {
-            legend: {
-              position: 'top',
-              labels: {
-                font: {
-                  size: 14
-                }
-              }
-            },
-            title: {
-              display: true,
-              text: 'Suivi des scores Lighthouse (%)',
-              font: {
-                size: 20
-              }
-            }
+            legend: { position: 'top' },
+            title: { display: true, text: 'Suivi des scores Lighthouse (%)' }
           },
           scales: {
-            y: {
-              beginAtZero: true,
-              max: 100,
-              title: {
-                display: true,
-                text: 'Score (%)',
-                font: {
-                  size: 16
-                }
-              }
-            },
-            x: {
-              title: {
-                display: true,
-                text: 'Date',
-                font: {
-                  size: 16
-                }
-              },
-              ticks: {
-                autoSkip: true,
-                maxTicksLimit: 12
-              }
-            }
+            y: { beginAtZero: true, max: 100 }
           }
         }
       });
     }
 
-    fetchDataAndDraw();
+    initializeChart();
   </script>
 </body>
 </html>
