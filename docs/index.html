@@ -125,7 +125,21 @@
       });
     }
 
+    async function refreshData() {
+      const data = await fetchData();
+      const lastUpdate = data.length > 0 ? new Date(data[data.length - 1].date) : new Date(0);
+
+      // Check if data has changed and update the chart if necessary
+      if (lastUpdate > new Date(lighthouseChart.data.labels[0])) {
+        await populateURLSelector(data);
+        updateChart();
+      }
+    }
+
     initializeChart();
+
+    // Refresh data every 10 seconds
+    setInterval(refreshData, 10000);
   </script>
 </body>
 </html>
