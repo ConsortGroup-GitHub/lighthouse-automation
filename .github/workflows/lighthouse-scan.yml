@@ -2,18 +2,20 @@ name: Lighthouse Scan Automation
 
 on:
   workflow_dispatch: # Déclencheur manuel
-  push:              # Déclenche aussi à chaque push sur main
+  push:              # À chaque push sur main
     branches:
       - main
   pull_request:      # Et aussi sur PR vers main
     branches:
       - main
+  schedule:          # ➕ Exécution planifiée tous les jours à 2h UTC (4h Paris en été)
+    - cron: '0 2 * * *'
 
 jobs:
   lighthouse-scan:
     runs-on: ubuntu-latest
     env:
-      TZ: Europe/Paris  # ➕ Active la timezone Europe/Paris pour tout le job
+      TZ: Europe/Paris
 
     steps:
       - name: Checkout repository
