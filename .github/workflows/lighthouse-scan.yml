@@ -8,8 +8,8 @@ on:
   pull_request:      # Et aussi sur PR vers main
     branches:
       - main
-  schedule:          # ➕ Exécution planifiée tous les jours à 2h UTC (4h Paris en été)
-    - cron: '0 2 * * *'
+  # schedule:          # ➕ Exécution planifiée tous les jours à 2h UTC (4h Paris en été)
+    # - cron: '0 2 * * *'
 
 jobs:
   lighthouse-scan:
